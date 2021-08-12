@@ -110,6 +110,7 @@ module.exports = (db) => {
 
     app.get('/rides/:id', (req, res) => {
         logger.info('get /rides/id');
+        if (!req.params.id.match(/[0-9]/)) res.status(400);
         db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, (err, rows) => {
             if (err) {
                 return res.send({
