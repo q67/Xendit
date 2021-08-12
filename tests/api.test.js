@@ -123,6 +123,12 @@ describe('API tests', () => {
                 });
         });
 
+        it('should return error if id not correct', async () => {
+            await request(app)
+                .get('/rides/lala')
+                .expect(400);
+        });
+
         it('should return server error if table Rides dropped', async () => {
             await db.run('DROP TABLE Rides');
             await request(app)

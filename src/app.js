@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 
 const jsonParser = bodyParser.json();
 const instructions = require('./instructions.json');
+const logger = require('../logs/winston');
 
 module.exports = (db) => {
     app.get('/health', (req, res) => res.send('Healthy'));
@@ -19,6 +20,7 @@ module.exports = (db) => {
     });
 
     app.post('/rides', jsonParser, (req, res) => {
+        logger.info('post /rides');
         const startLatitude = Number(req.body.start_lat);
         const startLongitude = Number(req.body.start_long);
         const endLatitude = Number(req.body.end_lat);
@@ -86,6 +88,7 @@ module.exports = (db) => {
     });
 
     app.get('/rides', (req, res) => {
+        logger.info('get /rides');
         db.all('SELECT * FROM Rides', (err, rows) => {
             if (err) {
                 return res.send({
@@ -106,6 +109,8 @@ module.exports = (db) => {
     });
 
     app.get('/rides/:id', (req, res) => {
+        logger.info('get /rides/id');
+        if (!req.params.id.match(/[0-9]/)) res.status(400);
         db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, (err, rows) => {
             if (err) {
                 return res.send({
