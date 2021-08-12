@@ -86,5 +86,52 @@ describe('API tests', () => {
         it('should be return validation error if vehicle name not string', (done) => {
             requestRide('driver_vehicle', 756, done);
         });
+
+        it('should return error if db dropped', async () => {
+            await request(app)
+                .post('/rides')
+                .send({})
+                .expect((res) => {
+                    if (res.body.error_code !== 'VALIDATION_ERROR') {
+                        throw new Error();
+                    }
+                });
+        });
+    });
+
+    describe('GET /rides', () => {
+        it('should return error if db empty', async () => {
+            await db.run('DELETE FROM Rides');
+            await request(app)
+                .get('/rides')
+                .expect((res) => {
+                    if (res.body.error_code !== 'RIDES_NOT_FOUND_ERROR') {
+                        throw new Error();
+                    }
+                });
+        });
+    });
+
+    describe('GET /rides/id', () => {
+        it('should return error if some rider not found', async () => {
+            await request(app)
+                .get('/rides/1')
+                .expect((res) => {
+                    if (res.body.error_code !== 'RIDES_NOT_FOUND_ERROR') {
+                        throw new Error();
+                    }
+                });
+        });
+
+        it('should return server error if table Rides dropped', async () => {
+            await db.run('DROP TABLE Rides');
+            await request(app)
+                .get('/rides/1')
+                .expect((res) => {
+                    if (res.body.error_code !== 'SERVER_ERROR') {
+                        throw new Error();
+                    }
+                });
+        });
     });
 });
