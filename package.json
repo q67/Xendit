@@ -10,12 +10,13 @@
     "tests": "mocha tests",
     "nyc": "nyc mocha tests",
     "lint": "eslint src/*.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "test:load": "loadtest --rps 100 -t 30 http://localhost:8010"
   },
   "keywords": [
     "Xendit"
   ],
-  "author": "Bo",
+  "author": "Victor",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
