@@ -42,17 +42,17 @@ describe('API tests', () => {
         });
     });
 
-    describe('POST /rides', () => {
-        const defaultRide = {
-            start_lat: 0,
-            start_long: 0,
-            end_lat: 0,
-            end_long: 0,
-            rider_name: 'Victor',
-            driver_name: 'Alex',
-            driver_vehicle: 'Renault',
-        };
+    const defaultRide = {
+        start_lat: 0,
+        start_long: 0,
+        end_lat: 0,
+        end_long: 0,
+        rider_name: 'Victor',
+        driver_name: 'Alex',
+        driver_vehicle: 'Renault',
+    };
 
+    describe('POST /rides', () => {
         const requestRide = (key, newVal, done) => {
             const instanseRide = { ...defaultRide };
             instanseRide[key] = newVal;
@@ -68,7 +68,7 @@ describe('API tests', () => {
         };
 
         it('should be return validation error if start coordinates not correct', (done) => {
-            requestRide('start_lat', -100, done);
+            requestRide('end_lat', -100, done);
         });
 
         it('should be return validation error if end coordinates not correct', (done) => {
@@ -85,17 +85,6 @@ describe('API tests', () => {
 
         it('should be return validation error if vehicle name not string', (done) => {
             requestRide('driver_vehicle', 756, done);
-        });
-
-        it('should return error if db dropped', async () => {
-            await request(app)
-                .post('/rides')
-                .send({})
-                .expect((res) => {
-                    if (res.body.error_code !== 'VALIDATION_ERROR') {
-                        throw new Error();
-                    }
-                });
         });
     });
 
@@ -133,6 +122,20 @@ describe('API tests', () => {
             await db.run('DROP TABLE Rides');
             await request(app)
                 .get('/rides/1')
+                .expect((res) => {
+                    if (res.body.error_code !== 'SERVER_ERROR') {
+                        throw new Error();
+                    }
+                });
+        });
+    });
+
+    describe('POST /rides dropped', () => {
+        it('should return error if try insert any data into dropped table', async () => {
+            const instanseRide = { ...defaultRide };
+            await request(app)
+                .post('/rides')
+                .send(instanseRide)
                 .expect((res) => {
                     if (res.body.error_code !== 'SERVER_ERROR') {
                         throw new Error();
